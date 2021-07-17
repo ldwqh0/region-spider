@@ -24,7 +24,7 @@ async function readChildren (datas) {
   return exists
 }
 
-// 读取生
+// 读取省
 const entry = await readFromUrl(inUrl, 'gb2312')
 const $ = cheerio.load(entry)
 const provinces = $('.provincetr a').toArray().map((e) => {
