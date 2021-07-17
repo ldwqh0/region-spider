@@ -10,7 +10,7 @@ function lazy (time) {
 export default async function (url, encoding) {
   try {
     // 延迟1000毫秒
-    await lazy(1000)
+    // await lazy(500)
     const { data } = await axios.get(url, {
       responseType: 'arraybuffer',
       headers: {

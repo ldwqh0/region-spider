@@ -2,33 +2,24 @@ import readFromUrl from './readFromUrl.mjs'
 import cheerio from 'cheerio'
 import { resolve } from 'url'
 import _ from 'lodash'
-import readVillages from './readVillages.mjs'
 import { writeFile } from 'fs/promises'
+import parseChildren from './parseChildren.mjs'
+import parseVillage from './parseVillage.mjs'
 
 // 读取入口点
 const inUrl = 'http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2020/index.html'
 
-const writeData = (filename, datas) => writeFile(new URL(`../${filename}`, import.meta.url), JSON.stringify(datas), 'utf8')
+const writeData = (filename, datas) => writeFile(new URL(`../out/${filename}`, import.meta.url), JSON.stringify(datas), 'utf8')
+
+const villages = []
 
 async function readChildren (datas) {
   const it = datas.filter(v => !_.isEmpty(v.href))
   let exists = []
   for (const cur of it) {
     const text = await readFromUrl(cur.href, 'gb2312')
-    const $ = cheerio.load(text)
-    $('.citytr,.countytr,.towntr').toArray().forEach(e => {
-      const tds = $(e).children()
-      const result = {
-        code: $(tds.get(0)).text(),
-        name: $(tds.get(1)).text(),
-        parent: cur.code
-      }
-      const href = tds.children('a').attr('href')
-      if (!_.isEmpty(href)) {
-        result.href = resolve(cur.href, href)
-      }
-      exists = exists.concat(result)
-    })
+    villages.push(...parseVillage(text, cur))
+    exists = exists.concat(parseChildren(text, cur))
   }
   return exists
 }
@@ -51,9 +42,12 @@ const cities = await readChildren(provinces)
 await writeData('cities.json', cities)
 
 const counties = await readChildren(cities)
-await writeData('towns.json', counties)
+await writeData('counties.json', counties)
 
-const villages = await readVillages(counties)
+const towns = await readChildren(counties)
+await writeData('towns.json', towns)
+
+const villages2 = await readChildren(towns)
 await writeData('villages.json', villages)
 
 
