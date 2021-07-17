@@ -10,7 +10,7 @@ function lazy (time) {
 export default async function (url, encoding) {
   try {
     // 延迟1000毫秒
-    await lazy(1000)
+    // await lazy(1000)
     const { data } = await axios.get(url, {
       responseType: 'arraybuffer',
       headers: {
@@ -20,7 +20,7 @@ export default async function (url, encoding) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.67'
       }
     })
-    console.log(`读取文件${url}完成`)
+    // console.log(`读取文件${url}完成`)
     return iconv.decode(Buffer.from(data), encoding)
   } catch (e) {
     console.error(`读取文件${url}发生错误`, e)
