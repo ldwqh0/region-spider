@@ -1,6 +1,5 @@
 import iconv from 'iconv-lite'
 import axios from 'axios'
-import appendErr from './appendErr.mjs'
 
 function lazy (time) {
   return new Promise(((resolve, reject) => {
@@ -24,7 +23,7 @@ export default async function (url, encoding) {
     console.log(`读取文件${url}完成`)
     return iconv.decode(Buffer.from(data), encoding)
   } catch (e) {
-    await appendErr(url)
+    // await appendErr(url)
     console.error(`读取文件${url}发生错误`, e)
     return Promise.reject(e)
   }

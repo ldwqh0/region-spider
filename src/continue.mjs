@@ -5,6 +5,7 @@ import parseVillage from './parseVillage.mjs'
 import parseChildren from './parseChildren.mjs'
 import writeData from './writeData.mjs'
 import appendVillages from './appendVillages.mjs'
+import appendErr from './appendErr.mjs'
 
 const villages = []
 
@@ -17,6 +18,7 @@ async function readChildren (datas) {
       villages.push(...parseVillage(text, cur))
       exists = exists.concat(parseChildren(text, cur))
     } catch (e) {
+      appendErr(`${cur.code},${cur.name},${cur.parent},${cur.href}`)
     }
   }
   return exists
