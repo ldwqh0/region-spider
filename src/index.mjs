@@ -11,14 +11,19 @@ import writeData from './writeData.mjs'
 const inUrl = 'http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2020/index.html'
 
 const villages = []
+const errors = []
 
 async function readChildren (datas) {
   const it = datas.filter(v => !_.isEmpty(v.href))
   let exists = []
   for (const cur of it) {
-    const text = await readFromUrl(cur.href, 'gb2312')
-    villages.push(...parseVillage(text, cur))
-    exists = exists.concat(parseChildren(text, cur))
+    try {
+      const text = await readFromUrl(cur.href, 'gb2312')
+      villages.push(...parseVillage(text, cur))
+      exists = exists.concat(parseChildren(text, cur))
+    } catch (e) {
+      errors.push(cur)
+    }
   }
   return exists
 }
@@ -27,7 +32,7 @@ try {
   // 读取省
   const entry = await readFromUrl(inUrl, 'gb2312')
   const $ = cheerio.load(entry)
-  const provinces = $('.provincetr a').toArray().map((e) => {
+  const level1 = $('.provincetr a').toArray().map((e) => {
     const href = $(e).attr('href')
     const [code] = href.split('.')
     return {
@@ -36,22 +41,25 @@ try {
       href: resolve(inUrl, href)
     }
   })
-  await writeData('provinces.json', provinces)
+  await writeData('level1.json', level1)
 
-  const cities = await readChildren(provinces)
-  await writeData('cities.json', cities)
+  const level2 = await readChildren(level1)
+  await writeData('level2.json', level2)
 
-  const counties = await readChildren(cities)
-  await writeData('counties.json', counties)
+  const level3 = await readChildren(level2)
+  await writeData('level3.json', level3)
 
-  const towns = await readChildren(counties)
-  await writeData('towns.json', towns)
+  const level4 = await readChildren(level3)
+  await writeData('level4.json', level4)
 
-  const villages2 = await readChildren(towns)
-  await writeData('villages.json', villages)
+  const level5 = await readChildren(level4)
+  await writeData('level5.json', level5)
 } catch (e) {
   await appendVillages(villages)
+} finally {
+
 }
+
 
 
 
